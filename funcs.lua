@@ -127,6 +127,10 @@ function FT:FindFirstDescendantOfClass(obj, classname)
 	end
 end
 
+function FT:GetAsset(id)
+	return game:GetService("MarketplaceService"):GetProductInfo(id)
+end
+
 local FUNCS = {
 	["FT: ClosestPlayerToCursor"] = [[  
 	ARGUMENTS: None.
@@ -177,7 +181,12 @@ local FUNCS = {
 		[1] = Object that you want to check the descendants of.
 		[2] = Classname that you want to compare to the descendants.
 	RETURNS: A descendant of [1] that's classname matched [2]
-	]]
+	]];
+
+	["FT: GetAsset"] = [[
+	ARGUMENTS:
+		[1] = Audio id/any id
+	RETURNS: The asset "instance" of the asset]];
 	--To access these you would do GetPlayerInfo(name)['ValueName'] would return the value of that given"
 }
 
