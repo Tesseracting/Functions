@@ -119,6 +119,14 @@ function FT:ClearConsole()
 	for i=1, 200 do print() end
 end
 
+function FT:FindFirstDescendantOfClass(obj, classname)
+	for _, stuff in pairs(obj:GetDescendants()) do
+		if stuff:IsA(classname) then
+			return stuff
+		end
+	end
+end
+
 local FUNCS = {
 	["FT: ClosestPlayerToCursor"] = [[  
 	ARGUMENTS: None.
@@ -156,13 +164,20 @@ local FUNCS = {
 	["FT: GetPlayerInfo"] = [[  
 	ARGUMENTS:
 		[1] = Name of player.
-	RETURNS: This will return a table with values: {IsInGame, IsLocalPlayer, Character, Humanoid, RootPart}.
+	RETURNS: A table with values: {IsInGame, IsLocalPlayer, Character, Humanoid, RootPart}.
 	]];
 
 	["FT: ClearConsole"] = [[  
 	ARGUMENTS: None.
 	RETURNS: Nothing.
 	]];
+
+	["FT: FindFirstDescendantOfClass"] = [[
+	ARGUMENTS:
+		[1] = Object that you want to check the descendants of.
+		[2] = Classname that you want to compare to the descendants.
+	RETURNS: A descendant of [1] that's classname matched [2]
+	]]
 	--To access these you would do GetPlayerInfo(name)['ValueName'] would return the value of that given"
 }
 
