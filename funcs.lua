@@ -131,6 +131,10 @@ function FT:GetAsset(id)
 	return game:GetService("MarketplaceService"):GetProductInfo(id)
 end
 
+function FT:RandomValueFromTable(abc)
+	return abc[math.random(1, table.getn(abc))]
+end
+
 local FUNCS = {
 	["FT: ClosestPlayerToCursor"] = [[  
 	ARGUMENTS: None.
@@ -187,6 +191,12 @@ local FUNCS = {
 	ARGUMENTS:
 		[1] = Audio id/any id
 	RETURNS: The asset "instance" of the asset]];
+
+	["FT: RandomValueFromTable"] = [[
+		ARGUMENTS:
+			[1] = Table that you want to get random value from.
+		RETURNS: A random value from [1]
+	]]
 	--To access these you would do GetPlayerInfo(name)['ValueName'] would return the value of that given"
 }
 
