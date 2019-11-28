@@ -172,7 +172,7 @@ if PRINT_DOCUMENTATION then
 		print('\n' .. k .. ': ' .. v .. '\n')
 	end
 end
-_G.Functions = FT
+_G.FT = FT
 print('THE GLOBAL VARIABLE FOR THESE FUNCTIONS IS "_G.FT"')
 print('Took a total of ' .. os.time()-start .. ' seconds to finish loading.')
 print('---------------------------------------------------------------------')
