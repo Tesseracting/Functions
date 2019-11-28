@@ -89,9 +89,9 @@ end
 function FT:GetPlayerInfo(name)
 	local player = game.Players:FindFirstChildOfClass(name)
 	local islplayer = false
-	local character
-	local humanoid
-	local rootpart
+	local character = nil
+	local humanoid = nil
+	local rootpart = nil
 
 	if player then 
 		character = player.Character 
@@ -103,16 +103,14 @@ function FT:GetPlayerInfo(name)
 	if character then
 		humanoid = character:FindFirstChildOfClass('Humanoid') 
 		rootpart = character:FindFirstChild('HumanoidRootPart') 
-	end
+	end 
 
-	local info = {
+	return {
 	["IsInGame"] = player;
 	--["IsLocalPlayer"] = islplayer;
 	["Character"] = character;
 	["Humanoid"] = humanoid;
 	["RootPart"] = rootpart}
-
-	return info
 end
 
 function FT:ClearConsole()
