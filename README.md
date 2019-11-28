@@ -1,1 +1,1 @@
-# Functions
+This is a lua script that create a table of functions that are not regularly in ROBLOX to help you with your scripting. Enjoy using this script if you find it. The script will set a global variable called _G.FT
