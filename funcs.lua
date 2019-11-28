@@ -87,7 +87,8 @@ function FT:Pathfind(startpos, endpos)
 end
 
 function FT:GetPlayerInfo(name)
-	local player = game.Players:FindFirstChildOfClass(name)
+	local info = {}
+	local player = game.Players:FindFirstChild(name)
 	local islplayer = false
 	local character = nil
 	local humanoid = nil
@@ -105,12 +106,19 @@ function FT:GetPlayerInfo(name)
 		rootpart = character:FindFirstChild('HumanoidRootPart') 
 	end 
 
-	return {
-	["IsInGame"] = player;
-	--["IsLocalPlayer"] = islplayer;
-	["Character"] = character;
-	["Humanoid"] = humanoid;
-	["RootPart"] = rootpart}
+	print(player)
+	print(islplayer)
+	print(character)
+	print(humanoid)
+	print(rootpart)
+
+	info["IsInGame"] = player
+	info["IsLocalPlayer"] = islplayer
+	info["Character"] = character
+	info["Humanoid"] = humanoid
+	info["RootPart"] = rootpart
+
+	return info
 end
 
 function FT:ClearConsole()
@@ -131,6 +139,13 @@ end
 
 function FT:RandomValueFromTable(abc)
 	return abc[math.random(1, table.getn(abc))]
+end
+
+function FT:StringToTable(abc)
+	local newList = {}
+	for i=1, string.len(abc) do
+		table.insert(newList, string.sub(abc, i, i))
+	end
 end
 
 local FUNCS = {
@@ -194,6 +209,12 @@ local FUNCS = {
 		ARGUMENTS:
 			[1] = Table that you want to get random value from.
 		RETURNS: A random value from [1]
+	]]
+
+	["FT: StringToTable"] = [[
+		ARGUMENTS:
+			[1] = String that you want to make into a table.
+		RETURNS: A table of each letter that was in [1].
 	]]
 	--To access these you would do GetPlayerInfo(name)['ValueName'] would return the value of that given"
 }
