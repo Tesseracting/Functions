@@ -4,7 +4,7 @@ After executing the script, please wait until you are able to move your characte
 https://v3rmillion.net/member.php?action=profile&uid=785986
 ]]
 
-local toolamount = 100 -- Amount of tools you want to get
+local toolamount = 50 -- Amount of tools you want to get
 
 -- Don't edit script unless you know what you're doing. If you wanna add this into a script, please give credits and message me on discord that you added it in a script at Cyclically#4905
 
