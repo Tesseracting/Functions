@@ -16,28 +16,28 @@ LocalPlayer.Character.Archivable = true
 local tempchar, lastchar, savepos, currentamount = LocalPlayer.Character:Clone(), nil, LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame, #LocalPlayer.Backpack:GetChildren()
 tempchar.Parent = workspace
 repeat
-for _, tool in pairs(LocalPlayer.Backpack:GetChildren()) do
-if tool:IsA("Tool") then
-tool.Parent = LocalPlayer
-end
-end
-LocalPlayer.Character:ClearAllChildren()
-local char = Instance.new("Model", workspace)
-Instance.new("Humanoid", char)
-LocalPlayer.Character = char
-if lastchar ~= nil then
-lastchar:Destroy()
-end
-repeat runservice.Heartbeat:Wait() until LocalPlayer.Character ~= nil
-workspace.CurrentCamera.CameraSubject = tempchar:FindFirstChild("Humanoid")
-lastchar = char
+	for _, tool in pairs(LocalPlayer.Backpack:GetChildren()) do
+		if tool:IsA("Tool") then
+			tool.Parent = LocalPlayer
+		end
+	end
+	LocalPlayer.Character:ClearAllChildren()
+	local char = Instance.new("Model", workspace)
+	Instance.new("Humanoid", char)
+	LocalPlayer.Character = char
+	if lastchar ~= nil then
+		lastchar:Destroy()
+	end
+	repeat runservice.Heartbeat:Wait() until LocalPlayer.Character ~= nil
+	workspace.CurrentCamera.CameraSubject = tempchar:FindFirstChild("Humanoid")
+	lastchar = char
 until #LocalPlayer:GetChildren() - 2 - currentamount >= toolamount and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") ~= nil
 lastchar:Destroy()
 workspace.CurrentCamera.CameraSubject = LocalPlayer.Character:FindFirstChild("Humanoid")
 for _, tool in pairs(LocalPlayer:GetChildren()) do
-if tool:IsA("Tool") then
-tool.Parent = LocalPlayer.Backpack
-end
+	if tool:IsA("Tool") then
+		tool.Parent = LocalPlayer.Backpack
+	end
 end
 LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = savepos
 tempchar:Destroy()

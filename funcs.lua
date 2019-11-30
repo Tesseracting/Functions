@@ -106,11 +106,7 @@ function FT:GetPlayerInfo(name)
 		rootpart = character:FindFirstChild('HumanoidRootPart') 
 	end 
 
-	print(player)
-	print(islplayer)
-	print(character)
-	print(humanoid)
-	print(rootpart)
+	--table.insert(info, )
 
 	info["IsInGame"] = player
 	info["IsLocalPlayer"] = islplayer
@@ -146,6 +142,7 @@ function FT:StringToTable(abc)
 	for i=1, string.len(abc) do
 		table.insert(newList, string.sub(abc, i, i))
 	end
+	return newList
 end
 
 local FUNCS = {
