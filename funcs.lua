@@ -157,6 +157,32 @@ FT.StringFind = function(str, x)
     return found
 end
 
+FT.PlayersExceptLocalPlayer = function()
+	local players = game.Players:GetPlayers()
+	for i, p in pairs(players) do if p.Name == game.Players.LocalPlayer.Name then table.remove(players, i) end end
+	return players
+end
+
+FT.WorldPointToViewPoint = function(vec)
+	local camera = workspace.CurrentCamera
+	local worldPoint = Vector3.new(0, 10, 0)
+	local vector, onScreen = camera:WorldToScreenPoint(worldPoint)
+ 
+	return Vector2.new(vector.X, vector.Y), onScreen
+end
+
+FT.GetCorners = function(part)
+	local corners = {}
+	for x=-1, 1, 2 do
+		for y=-1, 1, 2 do
+			for z=-1, 1, 2 do
+				table.insert(corners, part.CFrame:pointToWorldSpace(Vector3.new(part.Size.X/2*x, part.Size.Y/2*y, part.Size.Z/2*z)))
+			end
+		end
+	end
+	return corners
+end
+
 local FUNCS = {
 	["FT.ClosestPlayerToCursor"] = [[  
 	ARGUMENTS: None.
@@ -227,6 +253,10 @@ local FUNCS = {
 	]]
 	--To access these you would do GetPlayerInfo(name)['ValueName'] would return the value of that given"
 }
+
+FT.GetDocumentation = function(func)
+	return FUNCS[fucn] or "No documentation found."
+end
 
 print('---------------------------------------------------------------------')
 if PRINT_DOCUMENTATION then
