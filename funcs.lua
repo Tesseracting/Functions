@@ -331,11 +331,21 @@ local FUNCS = {
 		ARGUMENTS:
 			[1] = An object you want to get the corners of
 		RETURNS: A table of all the corners of [1]
+	]];
+
+	["FT.BypassChat"] = [[
+		ARGUMENTS:
+			[1] = A string that you want to bypass NOTE. This only will be seen by people 13+
+		RETURNS: A bypassed version of [1]
+	]];
+
+	["FT.RedwoodApi"] = [[
+
 	]]
 }
 
 FT.GetDocumentation = function(func)
-	return FUNCS[func] or "No documentation found."
+	return FUNCS[func] or FUNCS["FT." .. func] or "No documentation found."
 end
 
 print('---------------------------------------------------------------------')
