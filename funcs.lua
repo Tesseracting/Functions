@@ -2,6 +2,7 @@ local start = os.time()
 print('Started')
 FT = {}
 local PRINT_DOCUMENTATION = false
+local bypasschar = readfile("bypasschar.txt")
 
 FT.mult = function(str, length)
 	if length > 0 and tonumber(length) ~= nil then
@@ -183,6 +184,61 @@ FT.GetCorners = function(part)
 	return corners
 end
 
+FT.BypassChat = function(str)
+	local table_of_letters = FT.StringToTable(str)
+
+	for a, b in pairs(table_of_letters) do
+		table_of_letters[a+1] = bypasschar
+	end
+
+	return TableToString(table_of_letters)
+end
+
+FT.RedwoodApi = function()
+	local resources = game:GetService("Workspace").resources
+	local event = resources.RemoteEvent
+	local func = resources.RemoteFunction
+	local a = {}
+
+	a.updateMOTD = function(text)
+		event:FireServer("updateMOTD", text)
+		func:InvokeServer("attemptChangeMOTD")
+	end
+
+	a.cuff = function(player)
+		event:FireServer("cuff", player)
+	end
+	
+	a.damage = function(player, dmg)
+		event:FireServer("dealDamage", player, dmg)
+	end
+
+	return a
+end
+
+FT.PrisonLifeApi = function()
+	
+	local a = {}
+
+	a.melee = function(player)
+		game:GetService("ReplicatedStorage").meleeEvent:FireServer(player)
+	end
+	
+	a.teamchange = function(team) -- team or brickcolor of team
+		if team.Name == "Neutral" then
+			warn("You would've been kicked. You can't teamchange to that team.")
+		else
+			game:GetService("Workspace").Remote.TeamEvent:FireServer(team.TeamColor)
+		end
+	end
+
+	a.arrest = function(playerpart)
+		game:GetService("Workspace").Remote.arrest:FireServer(playerpart)
+	end
+
+	return a
+end
+
 local FUNCS = {
 	["FT.ClosestPlayerToCursor"] = [[  
 	ARGUMENTS: None.
@@ -250,12 +306,36 @@ local FUNCS = {
 		ARGUMENTS:
 			[1] = String that you want to make into a table.
 		RETURNS: A table of each letter that was in [1].
-	]]
+	]];
 	--To access these you would do GetPlayerInfo(name)['ValueName'] would return the value of that given"
+
+	["FT.StringFind"] = [[
+		ARGUMENTS:
+			[1] = A string you are going to be checking
+			[2] = The part of the string you want to get the positions of
+		RETURNS: A table of all the positions of [2] found in [1]
+	]];
+
+	["FT.FT.PlayersExceptLocalPlayer"] = [[
+		ARGUMENTS: NONE
+		RETURNS: A list of all players except the local player
+	]];
+
+	["FT.WorldPointToViewPoint"] = [[
+		ARGUMENTS:
+			[1] = A vector3
+		RETURNS: A vector2 of where [1] would be on the screen
+	]];
+
+	["FT.GetCorners"] = [[
+		ARGUMENTS:
+			[1] = An object you want to get the corners of
+		RETURNS: A table of all the corners of [1]
+	]]
 }
 
 FT.GetDocumentation = function(func)
-	return FUNCS[fucn] or "No documentation found."
+	return FUNCS[func] or "No documentation found."
 end
 
 print('---------------------------------------------------------------------')
