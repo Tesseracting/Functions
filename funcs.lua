@@ -204,26 +204,6 @@ FT.GetCorners = function(part)
 	return corners
 end
 
-FT.BypassChat = function(str)
-	local x = {
-		["a"] = ""
-		["b"] = ""
-		["c"]
-		["d"]
-		["e"]
-		["f"]
-		["g"]
-		["h"]
-		["i"]
-		["j"]
-		["k"]
-		["l"]
-		["t"] = "τ"
-		["o"] = "ö"
-		["y"] = "ÿ"
-	}
-end
-
 FT.GetArea = function(part)
 	return part.Size.X + part.Size.Y + part.Size.Z
 end
@@ -446,8 +426,6 @@ local FUNCS = {
 FT.GetDocumentation = function(func)
 	return FUNCS[func] or FUNCS["FT." .. func] or "No documentation found."
 end
-
-FT/
 
 print('---------------------------------------------------------------------')
 if PRINT_DOCUMENTATION then
