@@ -2,6 +2,7 @@ local start = os.time()
 print('Started')
 FT = {}
 local PRINT_DOCUMENTATION = false
+local readfile = readfile or function() print("Sorry you aren't using an exploit hahah") end
 local bypasschar = readfile("bypasschar.txt")
 
 FT.mult = function(str, length)
@@ -38,7 +39,7 @@ end
 FT.TableToString = function(giventable, seperator)
 	if not seperator then seperator = '' end
 	local newtable = {}
-	for _, stuff in pairs(giventable) do
+	for i, v in pairs(giventable) do
 		table.insert(newtable, tostring(stuff) .. tostring(seperator))
 	end
 	return unpack(newtable)
@@ -108,14 +109,21 @@ FT.GetPlayerInfo = function(name)
 		rootpart = character:FindFirstChild('HumanoidRootPart') 
 	end 
 
-	--table.insert(info, )
 
-	info["IsInGame"] = player
-	info["IsLocalPlayer"] = islplayer
-	info["Character"] = character
-	info["Humanoid"] = humanoid
-	info["RootPart"] = rootpart
-
+	info = {
+		["IsInGame"] = player;
+		["IsLocalPlayer"] = islplayer;
+		["Character"] = character;
+		["Humanoid"] = humanoid;
+		["RootPart"] = rootpart;
+	}
+	
+	print(player)
+	print(islplayer)
+	print(character)
+	print(humanoid)
+	print(rootpart)
+	
 	return info
 end
 
@@ -158,9 +166,21 @@ FT.StringFind = function(str, x)
     return found
 end
 
-FT.PlayersExceptLocalPlayer = function()
-	local players = game.Players:GetPlayers()
-	for i, p in pairs(players) do if p.Name == game.Players.LocalPlayer.Name then table.remove(players, i) end end
+FT.PlayersExceptLocalPlayer = function(returnlocal, returnchar)
+	local players = {}
+
+	for _, p in pairs(game.Players:GetPlayers()) do
+		if (returnlocal and p.Name == game.Players.LocalPlayer.Name) or true then
+			if returnchar then
+				if p.Character then
+					table.insert(players, p.Character)
+				end
+			else
+				table.insert(players, p)
+			end
+		end
+	end
+
 	return players
 end
 
@@ -185,13 +205,39 @@ FT.GetCorners = function(part)
 end
 
 FT.BypassChat = function(str)
-	local table_of_letters = FT.StringToTable(str)
+	local x = {
+		["a"] = ""
+		["b"] = ""
+		["c"]
+		["d"]
+		["e"]
+		["f"]
+		["g"]
+		["h"]
+		["i"]
+		["j"]
+		["k"]
+		["l"]
+		["t"] = "τ"
+		["o"] = "ö"
+		["y"] = "ÿ"
+	}
+end
 
-	for a, b in pairs(table_of_letters) do
-		table_of_letters[a+1] = bypasschar
+FT.GetArea = function(part)
+	return part.Size.X + part.Size.Y + part.Size.Z
+end
+
+FT.Triangulate = function(vectors)
+	local a = nil
+
+	for _, vec in pairs(vectors) do
+		if a then
+			a = vec:Lerp(0.5)
+		else
+			a = vec
+		end
 	end
-
-	return TableToString(table_of_letters)
 end
 
 FT.RedwoodApi = function()
@@ -206,11 +252,48 @@ FT.RedwoodApi = function()
 	end
 
 	a.cuff = function(player)
-		event:FireServer("cuff", player)
+		if type(player) == "table" then
+			for _, p in pairs(player) do event:FireServer("cuff", p) wait(0.1) end
+		else
+			event:FireServer("cuff", player)
+		end
 	end
 	
 	a.damage = function(player, dmg)
-		event:FireServer("dealDamage", player, dmg)
+		if type(player) == "table" then
+			for _, p in pairs(player) do
+				local humanoid = p
+				if p.ClassName == "Player" then 
+					local char = p.Character
+					if char then
+						humanoid = char:FindFirstChildOfClass("Humanoid")
+					end
+				elseif p.ClassName == "Model" then
+					humanoid = p:FindFirstChildOfClass("Humanoid")
+				end
+				if humanoid then
+					event:FireServer("dealDamage", humanoid, dmg) 
+				end
+				wait(0.1)
+			end
+		else
+			event:FireServer("dealDamage", player, dmg)
+		end
+	end
+
+	a.teamchange = function(team)
+		local oh2 = nil
+		if type(team) == "userdata" then oh2 = team.Name elseif type(team) == "string" then oh2 = team end
+		oh2 = string.lower(oh2)
+		func:InvokeServer("requestTeam", string.lower(oh2))
+	end
+
+	a.updatedoor = function(door)
+		if type(door) == "table" then
+			for _, test in pairs(door) do event:FireServer("updateDoorSystem", test) end
+		else
+			event:FireServer("updateDoorSystem", door)
+		end
 	end
 
 	return a
@@ -237,6 +320,26 @@ FT.PrisonLifeApi = function()
 	end
 
 	return a
+end
+
+FT.GodSimulatorApi = function()
+	local a = {}
+	local event = game:GetService("ReplicatedStorage")["🔥"]
+	local func = game:GetService("ReplicatedStorage")["👌"]
+
+	a.UseAbility = function(godname, ability, cframe)
+		event:FireServer("UseAbility", godname, ability, cframe)
+	end
+
+	a.Teleport = function(placename)
+		event:FireServer("PDS", "Teleport", placename)
+	end
+
+	a.Activations = function(name)
+		func:InvokeServer("PDS", "Activations", name)
+	end
+
+	return a 
 end
 
 local FUNCS = {
@@ -337,10 +440,6 @@ local FUNCS = {
 		ARGUMENTS:
 			[1] = A string that you want to bypass NOTE. This only will be seen by people 13+
 		RETURNS: A bypassed version of [1]
-	]];
-
-	["FT.RedwoodApi"] = [[
-
 	]]
 }
 
@@ -348,12 +447,15 @@ FT.GetDocumentation = function(func)
 	return FUNCS[func] or FUNCS["FT." .. func] or "No documentation found."
 end
 
+FT/
+
 print('---------------------------------------------------------------------')
 if PRINT_DOCUMENTATION then
 	for k, v in pairs(FUNCS) do
 		print('\n' .. k .. ': ' .. v .. '\n')
 	end
 end
+
 _G.FT = FT
 print('THE GLOBAL VARIABLE FOR THESE FUNCTIONS IS "_G.FT"')
 print('Took a total of ' .. os.time()-start .. ' seconds to finish loading.')
