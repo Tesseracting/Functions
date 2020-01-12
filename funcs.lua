@@ -1,26 +1,20 @@
-local start = os.time()
-print('Started')
-FT = {}
+FT = getgenv() or {}
+
+local alreadyloaded = FT.FunctionsLoaded or false
 local PRINT_DOCUMENTATION = false
 local readfile = readfile or function() print("Sorry you aren't using an exploit hahah") end
-local bypasschar = readfile("bypasschar.txt")
 
-FT.mult = function(str, length)
-	if length > 0 and tonumber(length) ~= nil then
-		local multipliedstring = ''
-		for i=1, length do 
-			multipliedstring = multipliedstring .. str
-		end
-		return multipliedstring
-	else
-		warn("The number that you supplied to be multiply the string by was either negative or not a number.")
-	end
+if not alreadyloaded then
+	print('---------------------------------------------------------------------')
+	print('Started')
 end
+
+local start = os.time()
 
 FT.ClosestPlayerToCursor = function()
     local closestPlayer = nil
     local shortestDistance = math.huge
-    
+
     for i, v in pairs(game:GetService("Players"):GetPlayers()) do
         if v ~= localPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health ~= 0 and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Head") and v.Team ~= localPlayer.Team then
             local pos = currentCamera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
@@ -32,23 +26,36 @@ FT.ClosestPlayerToCursor = function()
             end
         end
     end
-    
+
     return closestPlayer or localPlayer
 end
 
-FT.TableToString = function(giventable, seperator)
-	if not seperator then seperator = '' end
+FT.TableToString = function(giventable, separator, recursive)
+	recursive = recursive or true
+	separator = separator or ''
+
+	if not recursive then
+		local string = "" -- WORK ON THIS SHITS PLS
+		return
+	end
 	local newtable = {}
 	for i, v in pairs(giventable) do
-		table.insert(newtable, tostring(stuff) .. tostring(seperator))
+		if type(i) == "table" then
+			TableToString(i, separator)
+		elseif type(v) == "table" then
+			TableToString(v, separator)
+		else
+			print("I added something " .. tostring(i) .. separator .. tostring(v))
+			table.insert(newtable, tostring(i) .. separator .. tostring(v))
+		end
 	end
 	return unpack(newtable)
 end
 
 FT.TableCheck = function(thetable, value)
-	for _, v in pairs(thetable) do
-		if v == value then
-			return true
+	for iter, v in pairs(thetable) do
+		if v == value or iter == value then
+			return true, {iter, value}
 		end
 	end
 	return false
@@ -57,7 +64,7 @@ end
 FT.FindClosestPlayer = function(position, teamstoignore)
     local lowest = math.huge -- infinity
 	local NearestPlayer = nil
-	
+
 	for i,v in pairs(game.Players:GetPlayers()) do
 		if v and v.Character then
 			local hum = v.Character:FindFirstChildOfClass('Humanoid')
@@ -77,13 +84,13 @@ end
 
 FT.Pathfind = function(startpos, endpos)
 	local PathfindingService = game:GetService("PathfindingService")
-	
+
 	-- Create the path object
 	local path = PathfindingService:CreatePath()
-	
+
 	-- Compute the path
 	path:ComputeAsync(startpos, endpos)
-	
+
 	-- Get the path waypoints
 	local waypoints = path:GetWaypoints()
 	return path, waypoints
@@ -91,39 +98,37 @@ end
 
 FT.GetPlayerInfo = function(name)
 	local info = {}
-	local player = game.Players:FindFirstChild(name)
-	local islplayer = false
-	local character = nil
-	local humanoid = nil
-	local rootpart = nil
+	local player;
 
-	if player then 
-		character = player.Character 
-		if player.Name == game.Players.LocalPlayer.Name then 
-			islplayer = true 
-		end
+	if type(name) == "string" then
+		player = game.Players:FindFirstChild(name)
+	elseif type(name) == "userdata" then
+		player = name
 	end
 
-	if character then
-		humanoid = character:FindFirstChildOfClass('Humanoid') 
-		rootpart = character:FindFirstChild('HumanoidRootPart') 
-	end 
+	FT.GetExploit = function()
+		local exploit;
+		if syn then
+			exploit = "syn"
+		elseif readfileas then
+			exploit = "calamari"
+		end
+		return exploit
+	end
 
+	local character = player.Character
 
 	info = {
-		["IsInGame"] = player;
-		["IsLocalPlayer"] = islplayer;
-		["Character"] = character;
-		["Humanoid"] = humanoid;
-		["RootPart"] = rootpart;
+		IsInGame = not player or true;
+		IsLocalPlayer = player == game.Players.LocalPlayer;
+		Character = character;
+		Humanoid = character:FindFirstChildOfClass('Humanoid');
+		RootPart = character:FindFirstChild('HumanoidRootPart');
+		OperatingSys = player.OsPlatform;
+		UserId = player.UserId;
+		Team = player.Team
 	}
-	
-	print(player)
-	print(islplayer)
-	print(character)
-	print(humanoid)
-	print(rootpart)
-	
+
 	return info
 end
 
@@ -131,12 +136,45 @@ FT.ClearConsole = function()
 	for i=1, 200 do print() end
 end
 
-FT.FindFirstDescendantOfClass = function(obj, classname)
+FT.FindFirstDescendantOfClass = function(obj, classname, name)
 	for _, stuff in pairs(obj:GetDescendants()) do
-		if stuff:IsA(classname) then
+		if stuff:IsA(classname) or stuff.Name == name then
 			return stuff
 		end
 	end
+end
+
+FT.ChildrenOfChildren = function(obj, name)
+	for _, a in pairs(obj:GetChildren()) do
+		local test = a:FindFirstChild(name)
+		if test then return test end
+	end
+end
+
+FT.FindChildren = function(obj, classname, name)
+	local newTable = {}
+	for _, a in pairs(obj:GetChildren()) do
+		local test1, test2 = true, true
+
+		if classname then
+			if obj.ClassName ~= classname then
+				test1 = false
+			end
+		end
+
+		if name then
+			if obj.Name ~= name then
+				test2 = false
+			end
+		end
+
+		print(tostring(test1) .. " | " .. tostring(test2))
+
+		if test1 and test2 then
+			table.insert(newTable, obj)
+		end
+	end
+	return newTable
 end
 
 FT.GetAsset = function(id)
@@ -166,11 +204,18 @@ FT.StringFind = function(str, x)
     return found
 end
 
+FT.MergeTables = function(tbl1, tbl2)
+	for k, v in pairs(tbl2) do
+		tbl[k] = v
+	end
+	return tbl1
+end
+
 FT.PlayersExceptLocalPlayer = function(returnlocal, returnchar)
 	local players = {}
 
 	for _, p in pairs(game.Players:GetPlayers()) do
-		if (returnlocal and p.Name == game.Players.LocalPlayer.Name) or true then
+		if (returnlocal and p == game.Players.LocalPlayer) then
 			if returnchar then
 				if p.Character then
 					table.insert(players, p.Character)
@@ -178,6 +223,10 @@ FT.PlayersExceptLocalPlayer = function(returnlocal, returnchar)
 			else
 				table.insert(players, p)
 			end
+		elseif returnchar then
+			table.insert(players, p.Character)
+		elseif p.Name ~= game.Players.LocalPlayer.Name then
+			table.insert(players, p)
 		end
 	end
 
@@ -186,9 +235,8 @@ end
 
 FT.WorldPointToViewPoint = function(vec)
 	local camera = workspace.CurrentCamera
-	local worldPoint = Vector3.new(0, 10, 0)
-	local vector, onScreen = camera:WorldToScreenPoint(worldPoint)
- 
+	local vector, onScreen = camera:WorldToScreenPoint(vec)
+
 	return Vector2.new(vector.X, vector.Y), onScreen
 end
 
@@ -205,7 +253,7 @@ FT.GetCorners = function(part)
 end
 
 FT.GetArea = function(part)
-	return part.Size.X + part.Size.Y + part.Size.Z
+	return part.Size.X * part.Size.Y * part.Size.Z
 end
 
 FT.Triangulate = function(vectors)
@@ -213,12 +261,69 @@ FT.Triangulate = function(vectors)
 
 	for _, vec in pairs(vectors) do
 		if a then
-			a = vec:Lerp(0.5)
+			a = a + vec
 		else
 			a = vec
 		end
 	end
+	return a/table.getn(vectors)
 end
+
+FT.betterreadfile = function(filename)
+	local file = assert(readfile, "Your exploit doesn't support readfile.")
+	local contents;
+	local success, errormessage = pcall(function() contents = readfile(filename) end)
+	if success then return contents else return nil end
+end
+
+FT.import = function(name)
+	local file = betterreadfile(name)
+	if file then loadstring(file)() return getgenv()[name] end
+end
+
+FT.CopyTable = function(tbl)
+	local newTable = {}
+	for k, v in pairs(tbl) do
+		newTable[k] = v
+	end
+	return newTable
+end
+
+FT.range = function(start, stop, step)
+	step = step or 1
+	local newTable = {}
+	for i=start, stop, step do
+		table.insert(newTable, i)
+	end
+	return newTable
+end
+
+FT.Test123 = function(value1, value2, value3, value4)
+	if value1 == value2 then return value3 else return value4 end
+end
+
+FT.tablefunc = function(tbl, func, otherargs)
+	for _, a in pairs(tbl) do
+		func(a, otherargs)
+	end
+end
+
+local FRT = {}
+
+FT.FunctionReturnChange = function(tag, functiontocheck, functiontocall, val)
+	table.insert(FRT, {
+		Tag = tag;
+		Value = val or Test123(not FRT[tag], nil, true, not FRT[tag]);
+		FunctionCheck = functiontocheck;
+		FunctionCall = functiontocall
+	})
+end
+
+game:GetService("RunService").Heartbeat:Connect(function()
+	for _, a in pairs(FRT) do
+
+	end
+end)
 
 FT.RedwoodApi = function()
 	local resources = game:GetService("Workspace").resources
@@ -238,12 +343,12 @@ FT.RedwoodApi = function()
 			event:FireServer("cuff", player)
 		end
 	end
-	
+
 	a.damage = function(player, dmg)
 		if type(player) == "table" then
 			for _, p in pairs(player) do
 				local humanoid = p
-				if p.ClassName == "Player" then 
+				if p.ClassName == "Player" then
 					local char = p.Character
 					if char then
 						humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -252,7 +357,7 @@ FT.RedwoodApi = function()
 					humanoid = p:FindFirstChildOfClass("Humanoid")
 				end
 				if humanoid then
-					event:FireServer("dealDamage", humanoid, dmg) 
+					event:FireServer("dealDamage", humanoid, dmg)
 				end
 				wait(0.1)
 			end
@@ -280,13 +385,13 @@ FT.RedwoodApi = function()
 end
 
 FT.PrisonLifeApi = function()
-	
+
 	local a = {}
 
 	a.melee = function(player)
 		game:GetService("ReplicatedStorage").meleeEvent:FireServer(player)
 	end
-	
+
 	a.teamchange = function(team) -- team or brickcolor of team
 		if team.Name == "Neutral" then
 			warn("You would've been kicked. You can't teamchange to that team.")
@@ -319,124 +424,193 @@ FT.GodSimulatorApi = function()
 		func:InvokeServer("PDS", "Activations", name)
 	end
 
-	return a 
+	return a
+end
+
+FT.DarkRpApi = function()
+	local a = {}
+	local events = game:GetService("ReplicatedStorage").Events
+
+	--[[
+		Message's third argument ranges from 1-6
+		1 - Unknown
+		2 - Unknown
+		3 - Unknown
+		4 - Error
+		5 - Warning
+		6 - Success
+	--]]
+
+	a.Message = function(title, message, typeofmsg)
+		typeofmsg = typeofmsg or 5
+		events.Note:Fire(title, message, typeofmsg)
+	end
+
+	a.JobChange = function(job)
+		events.MenuEvent:FireServer(1, job)
+	end
+
+	a.HideWeapons = function(name, isback)
+		events.WeaponBackEvent:FireServer(name, isback)
+	end
+
+	a.Pickup = function(obj, pickup)
+		events.PickUpEvent:FireServer(obj, pickup)
+	end
+
+	return a
 end
 
 local FUNCS = {
-	["FT.ClosestPlayerToCursor"] = [[  
+	["ClosestPlayerToCursor"] = [[
 	ARGUMENTS: None.
 	RETURNS: The player instance of the person closest to your reticle.
 	]];
 
-	["FT.TableCheck"] = [[  
+	["TableCheck"] = [[
 	ARGUMENTS:
 		[1] = Table you will be checking.
 		[2] = Value you will be checking for.
 	RETURNS: A boolean if the value was found in the table
 	]];
 
-	["FT.FindClosestPlayer"] = [[  
+	["FindClosestPlayer"] = [[
 	ARGUMENTS:
 		[1]: The position you want the find the closest player to.
 		[2]: Table of team/s that you want to ignore.
 	RETURNS: The player instance of the closest player to [1]z.
 	]];
 
-	["FT.Pathfind"] = [[  
+	["Pathfind"] = [[
 	ARGUMENTS:
 		[1] = The start position of the path.
 		[2] = The end position of the path.
 	RETURNS: The path and waypoints in this order.
 	]];
-	--EXAMPLE: Pathfind(Vector3.new(0,0,0), Vector3.new(1,1,1)) would return {path instance, table of waypoints}
 
-	["FT.mult"] = [[  
-	ARGUMENTS:
-		[1] = The string you want to affect.
-		[2] = The number that the string to be "multiplied by".
-	RETURNS: The string following itself [2] time/s.]];
-
-	["FT.GetPlayerInfo"] = [[  
+	["GetPlayerInfo"] = [[
 	ARGUMENTS:
 		[1] = Name of player.
-	RETURNS: A table with values: {IsInGame, IsLocalPlayer, Character, Humanoid, RootPart}.
+	RETURNS: A table with lots of information within.
 	]];
 
-	["FT.ClearConsole"] = [[  
-	ARGUMENTS: None.
-	RETURNS: Nothing.
+	["ClearConsole"] = [[
+		ARGUMENTS: None.
+		RETURNS: Nothing.
 	]];
 
-	["FT.FindFirstDescendantOfClass"] = [[
-	ARGUMENTS:
-		[1] = Object that you want to check the descendants of.
-		[2] = Classname that you want to compare to the descendants.
-	RETURNS: A descendant of [1] that's classname matched [2]
+	["FindFirstDescendantOfClass"] = [[
+		ARGUMENTS:
+			[1] = Object that you want to check the descendants of.
+			[2] = Classname that you want to compare to the descendants.
+		RETURNS: A descendant of [1] that's classname matched [2]
 	]];
 
-	["FT.GetAsset"] = [[
-	ARGUMENTS:
-		[1] = Audio id/any id
-	RETURNS: The asset "instance" of the asset]];
+	["GetAsset"] = [[
+		ARGUMENTS:
+			[1] = Audio id/any id
+		RETURNS: The asset "instance" of the asset]];
 
-	["FT.RandomValueFromTable"] = [[
+	["RandomValueFromTable"] = [[
 		ARGUMENTS:
 			[1] = Table that you want to get random value from.
 		RETURNS: A random value from [1]
 	]];
 
-	["FT.StringToTable"] = [[
+	["StringToTable"] = [[
 		ARGUMENTS:
 			[1] = String that you want to make into a table.
 		RETURNS: A table of each letter that was in [1].
 	]];
 	--To access these you would do GetPlayerInfo(name)['ValueName'] would return the value of that given"
 
-	["FT.StringFind"] = [[
+	["StringFind"] = [[
 		ARGUMENTS:
 			[1] = A string you are going to be checking
 			[2] = The part of the string you want to get the positions of
 		RETURNS: A table of all the positions of [2] found in [1]
 	]];
 
-	["FT.FT.PlayersExceptLocalPlayer"] = [[
+	["PlayersExceptLocalPlayer"] = [[
 		ARGUMENTS: NONE
 		RETURNS: A list of all players except the local player
 	]];
 
-	["FT.WorldPointToViewPoint"] = [[
+	["WorldPointToViewPoint"] = [[
 		ARGUMENTS:
 			[1] = A vector3
 		RETURNS: A vector2 of where [1] would be on the screen
 	]];
 
-	["FT.GetCorners"] = [[
+	["GetCorners"] = [[
 		ARGUMENTS:
 			[1] = An object you want to get the corners of
 		RETURNS: A table of all the corners of [1]
 	]];
 
-	["FT.BypassChat"] = [[
+	["GetArea"] = [[
 		ARGUMENTS:
-			[1] = A string that you want to bypass NOTE. This only will be seen by people 13+
-		RETURNS: A bypassed version of [1]
-	]]
+			[1] = An object
+		RETURNS: A Vector3 of the part's size
+	]];
+
+	["Triangulate"] = [[
+		ARGUMENTS:
+			[1] = A table of Vector3's
+		RETURNS: The exact middle point of [1]
+	]];
+
+	["betterreadfile"] = [[
+		ARGUMENTS:
+			[1] = filename
+		RETURNS: The contents of the file [1]
+	]];
+
+	["import"] = [[
+		ARGUMENTS:
+			[1] = The name of a module
+		RETURNS: A table of the modules functions
+	]];
+
+	["CopyTable"] = [[
+		ARGUMENTS:
+			[1] = A table
+		RETURNS: A copy of the table
+	]];
+
+	["range"] = [[
+		ARGUMENTS:
+			[1] = The start number
+			[2] = The end number
+			[3] = The step number
+		RETURNS: A list of all the numbers from [1] to [2] iterating up by [3]
+	]];
+
 }
 
 FT.GetDocumentation = function(func)
 	return FUNCS[func] or FUNCS["FT." .. func] or "No documentation found."
 end
 
-print('---------------------------------------------------------------------')
-if PRINT_DOCUMENTATION then
+local msg1 = "So your exploit supports getgenv() so you only need to call the functions name like GetAsset(id)"
+
+if not getgenv() then
+	msg1 = "Your exploit doesn't support getgenv() so you need to call _G.FT to get the table of all the functions."
+	_G.FT = FT
+end
+
+if PRINT_DOCUMENTATION and not alreadyloaded then
 	for k, v in pairs(FUNCS) do
 		print('\n' .. k .. ': ' .. v .. '\n')
 	end
 end
 
-_G.FT = FT
-print('THE GLOBAL VARIABLE FOR THESE FUNCTIONS IS "_G.FT"')
-print('Took a total of ' .. os.time()-start .. ' seconds to finish loading.')
-print('---------------------------------------------------------------------')
---adding edit to check auto update script
+if not alreadyloaded then
+	print(msg1)
+	print('Took a total of ' .. os.time()-start .. ' seconds to finish loading.')
+	print('---------------------------------------------------------------------')
+else
+	print("The functions were already loadded, but I decided to be nice and load them in again incase there was an error :)")
+end
 
+FT.FunctionsLoaded = true
